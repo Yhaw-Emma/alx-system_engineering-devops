@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Bash script that will display information about the subdomains
+
+# Define a function to fetch DNS information for a specific subdomain of a domain
+dns_config () {
+    # Use dig command to query DNS for the specified subdomain under the given domain
+	script=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tr '\t' '\n' | tail -2 | tr '\n' ' ')
+
+    # Print the extracted DNS information in a formatted manner
+	echo "$2 $script" | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
+}
+
+# Check the number of arguments provided to the script
+if [ "$#" == 1 ]
+then
+    # If only one argument provided, assume it's the domain name and retrieve information for specific predefined subdomains
+	dns_config "$1" "www"
+	dns_config "$1" "lb-01"
+	dns_config "$1" "web-01"
+	dns_config "$1" "web-02"
+elif [ "$#" == 2 ]
+then
+    # If two arguments provided, assume the first is the domain name and the second is the subdomain to look up
+	dns_config "$1" "$2"
+fi
